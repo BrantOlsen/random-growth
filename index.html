@@ -33,13 +33,24 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>Example</h3>
+        <canvas id="canvas">
+          
+        </canvas>
 
 <pre>
 <code>
+  var canvas = document.getElementById("canvas");
+  canvas.width = window.innerWidth / 2;
+  canvas.height = window.innerHeight /2;
+  var rg = new RandomGrowth(canvas.getContext("2d"));
 </code>
 </pre>
 
 <script>
+  var canvas = document.getElementById("canvas");
+  canvas.width = window.innerWidth / 2;
+  canvas.height = window.innerHeight /2;
+  var rg = new RandomGrowth(canvas.getContext("2d"));
 
 </script>
 
