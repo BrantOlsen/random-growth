@@ -1,39 +1,41 @@
+"use strict";
 
 function RandomGrowth(context, settings)
 {
   this.settings = settings || {};
-  this.settings.spawnRate = this.settings.spawnRate || .05;
+  this.settings.spawnRate = this.settings.spawnRate || 0.05;
   this.settings.spawnLife = this.settings.spawnLife || 10;
+  this.settings.speed = this.settings.speed || 50;
+  this.settings.type = this.settings.type || "DrawTrdee";
   
+  this.percentFromSides = 0.05;
+    
   this.context = context;
   this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height);
- 
-  var y = this.context.canvas.height;
-  var x = this.context.canvas.width / 2;
-  var trunkHeight = this.context.canvas.height * .1;
+
+  var y, x, yStep, xStep, trunkHeight;
+  y = this.context.canvas.height;
+  x = this.context.canvas.width / 2;
+  trunkHeight = this.context.canvas.height * 0.1;
   
-  var yStep = Math.floor(y / 25);
+  yStep = Math.floor(y / 25);
   if (yStep < 5)
   {
     yStep = 5;
   }
-  var xStep = Math.floor(x / 50);
+  xStep = Math.floor(x / 50);
   if (xStep < 5)
   {
     xStep = 5;
   }
 
-context.strokeStyle = "white";  
+  context.strokeStyle = "white";  
   
-  var type = "DrawTrdee";
-  
-  if (type === "DrawTree")
+  if (this.settings.type === "DrawTree")
   {
-    console.log("x=" + x + ", y=" + y + ", ystep=" + yStep);
     context.beginPath();
     context.moveTo(x,y);
     y = y - trunkHeight;
-    console.log("x=" + x + ", y=" + y + ", ystep=" + yStep);
     context.lineTo(x,y);
     context.stroke();
 
@@ -59,13 +61,12 @@ context.strokeStyle = "white";
 
 RandomGrowth.prototype.drawRandom = function(context, x, y, yStep, xStep, lifeCounter)
 {
-  var percentFromSides = .05;
-  if (lifeCounter == 0 ||
-      y < context.canvas.height*percentFromSides ||
-      x < context.canvas.width*percentFromSides ||
-      x > context.canvas.width*(1-percentFromSides) ||
-      xStep == 0 ||
-      yStep == 0)
+  if (lifeCounter === 0 ||
+      y < context.canvas.height*this.percentFromSides ||
+      x < context.canvas.width*this.percentFromSides ||
+      x > context.canvas.width*(1-this.percentFromSides) ||
+      xStep === 0 ||
+      yStep === 0)
   {
     return;
   }
@@ -80,56 +81,57 @@ RandomGrowth.prototype.drawRandom = function(context, x, y, yStep, xStep, lifeCo
   context.stroke();
   
   setTimeout(function() {
-    var minX = (xStep < 0 ? -5 : 0.1);
-    var maxX = (xStep < 0 ? -0.1 : 5);
+    var minX, maxX;
+    minX = (xStep < 0 ? -5 : 0.1);
+    maxX = (xStep < 0 ? -0.1 : 5);
     self.drawRandom(context, x, y, self.getRandom(-10, 10), self.getRandom(minX, maxX), lifeCounter);
     if (self.getRandom(0, 1) < self.settings.spawnRate)
     {
       self.drawRandom(context, x, y, self.getRandom(-20, 20), self.getRandom(-5, 5), self.settings.spawnLife);    
     }
-  }, 200);
-}
+  }, this.settings.speed);
+};
 
 RandomGrowth.prototype.drawBranch = function(context, x, y, yStep, xStep, lifeCounter) 
 {
   var self = this;
-  var percentFromSides = .05;
   if (lifeCounter == 0 ||
-      y < context.canvas.height*percentFromSides ||
-      x < context.canvas.width*percentFromSides ||
-      x > context.canvas.width*(1-percentFromSides) ||
+      y < context.canvas.height*this.percentFromSides ||
+      x < context.canvas.width*this.percentFromSides ||
+      x > context.canvas.width*(1-this.percentFromSides) ||
       xStep == 0 ||
       yStep == 0)
   {
     return;
   }
- ++count;
+  
   context.beginPath();
   context.moveTo(x,y);
   y = y - yStep;
   x = x + xStep;
-  //console.log("x=" + x + ", y=" + y + ", ystep=" + yStep);
   context.lineTo(x,y);
   context.stroke();
 
   setTimeout(function() {
     self.drawBranch(context, x, y, yStep, xStep, lifeCounter);
-  }, 100);
+  }, this.settings.speed);
   // This causes it to hang. Why?
   if (lifeCounter < 0)
   {
     setTimeout(function() {
       self.drawBranch(context, x, y, yStep, xStep+xStep, -1);
-    }, 10);
+    }, this.settings.speed);
   }
   else
   {
     --lifeCounter;
-    self.drawBranch(context, x, y, yStep, -xStep, lifeCounter);
+    setTimeout(function() {    
+      self.drawBranch(context, x, y, yStep, -xStep, lifeCounter);
+    }, this.settings.speed);
   }
-}
+};
 
 RandomGrowth.prototype.getRandom = function(min, max)
 {
   return Math.random() * (max - min) + min;   
-}
+};
